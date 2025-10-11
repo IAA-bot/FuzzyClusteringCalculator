@@ -79,13 +79,16 @@ class SimilarityMatrixBuilder:
         np.fill_diagonal(R, 1.0)
         return R
 
-    def build_similarity_matrix(self, data, method_key):
+    def build_similarity_matrix(self, data, method_key, metric=None):
         """构建相似矩阵"""
         if method_key not in self.methods:
             raise ValueError(f"未知的相似矩阵建立方法: {method_key}")
 
         method_info = self.methods[method_key]
-        similarity_matrix = method_info['function'](data)
+        if method_key == '3':  # 距离法
+            similarity_matrix = method_info['function'](data, metric=metric or 'euclidean')
+        else:
+            similarity_matrix = method_info['function'](data)
         return similarity_matrix, method_info['name']
 
     def get_available_methods(self):
