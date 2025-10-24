@@ -12,7 +12,7 @@ class ClusterVisualizer:
         plt.style.use('seaborn-v0_8-darkgrid')
 
     @staticmethod
-    def display_matrix(matrix, title):
+    def display_matrix(matrix: np.ndarray, title : str) -> None:
         """显示矩阵"""
         print(f"\n{title}:")
         print("=" * 60)
@@ -21,7 +21,7 @@ class ClusterVisualizer:
         print("=" * 60)
 
     @staticmethod
-    def fuzzy_transitive_closure(R, tol=1e-6):
+    def fuzzy_transitive_closure(R: np.ndarray, tol=1e-6) -> np.ndarray:
         """模糊传递闭包算法"""
         T = R.copy()
         while True:
@@ -31,7 +31,7 @@ class ClusterVisualizer:
             T = T_new
         return T
 
-    def plot_dendrogram(self, R, labels=None, title='Fuzzy Clustering Dendrogram'):
+    def plot_dendrogram(self, R: np.ndarray, labels=None, title='Fuzzy Clustering Dendrogram'):
         """绘制动态聚类图"""
         if labels is None:
             labels = [f'Sample{i + 1}' for i in range(len(R))]

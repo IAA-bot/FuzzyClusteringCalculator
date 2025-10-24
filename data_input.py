@@ -39,7 +39,8 @@ class DataInputHandler:
         }
 
     def input_matrix(self):
-        """手动输入矩阵"""
+        """手动输入矩阵（改进版：更健壮的解析与错误提示）"""
+        import ast
         print("\n请输入数据矩阵：")
         print("格式示例：")
         print("  [[1,2,3], [4,5,6], [7,8,9]]")
@@ -49,22 +50,56 @@ class DataInputHandler:
         while True:
             try:
                 matrix_input = input("请输入矩阵: ").strip()
+                if not matrix_input:
+                    raise ValueError("输入为空")
 
-                # 处理不同的输入格式
+                # 分号分行格式
                 if ';' in matrix_input:
-                    # 处理分号格式
-                    rows = matrix_input.split(';')
-                    data = [list(map(float, row.split(','))) for row in rows]
+                    rows = [r.strip() for r in matrix_input.split(';') if r.strip()]
+                    if not rows:
+                        raise ValueError("未检测到有效行")
+                    data = []
+                    expected_len = None
+                    for i, row in enumerate(rows, start=1):
+                        parts = [p.strip() for p in row.split(',') if p.strip()]
+                        if not parts:
+                            raise ValueError(f"第 {i} 行为空或格式不正确")
+                        try:
+                            nums = [float(p) for p in parts]
+                        except ValueError as ve:
+                            raise ValueError(f"第 {i} 行包含非法数字: {parts}") from ve
+                        if expected_len is None:
+                            expected_len = len(nums)
+                        elif len(nums) != expected_len:
+                            raise ValueError(f"第 {i} 行与第一行列数不一致（期望 {expected_len}，实际 {len(nums)}）")
+                        data.append(nums)
                 else:
-                    # 处理列表格式
-                    matrix_input = matrix_input.replace(' ', '').replace('],[', '];[')
-                    data = eval(matrix_input)
+                    # 列表格式：使用 ast.literal_eval 替代 eval（更安全）
+                    try:
+                        parsed = ast.literal_eval(matrix_input)
+                    except Exception as e:
+                        raise ValueError("列表格式解析失败，请使用类似 [[1,2],[3,4]] 的格式") from e
+                    if not isinstance(parsed, (list, tuple)) or not parsed:
+                        raise ValueError("解析结果不是有效的二维列表")
+                    # 验证并转换为浮点
+                    data = []
+                    expected_len = None
+                    for i, row in enumerate(parsed, start=1):
+                        if not isinstance(row, (list, tuple)):
+                            raise ValueError(f"第 {i} 行不是列表")
+                        try:
+                            nums = [float(x) for x in row]
+                        except Exception as ve:
+                            raise ValueError(f"第 {i} 行包含非法数字: {row}") from ve
+                        if expected_len is None:
+                            expected_len = len(nums)
+                        elif len(nums) != expected_len:
+                            raise ValueError(f"第 {i} 行与第一行列数不一致（期望 {expected_len}，实际 {len(nums)}）")
+                        data.append(nums)
 
                 data_matrix = np.array(data)
-
-                if len(data_matrix.shape) != 2:
+                if data_matrix.ndim != 2:
                     raise ValueError("请输入二维矩阵")
-
                 if data_matrix.shape[0] < 2 or data_matrix.shape[1] < 1:
                     raise ValueError("矩阵至少需要2行1列")
 

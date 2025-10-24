@@ -13,7 +13,7 @@ class DataNormalizer:
         }
 
     @staticmethod
-    def std_normalization(data):
+    def std_normalization(data: np.ndarray) -> np.ndarray:
         """标准差标准化"""
         mean = np.mean(data, axis=0)
         std = np.std(data, axis=0, ddof=1)
@@ -21,7 +21,7 @@ class DataNormalizer:
         return (data - mean) / std
 
     @staticmethod
-    def range_normalization(data):
+    def range_normalization(data: np.ndarray) -> np.ndarray:
         """极差正规化"""
         min_vals = np.min(data, axis=0)
         max_vals = np.max(data, axis=0)
@@ -30,7 +30,7 @@ class DataNormalizer:
         return (data - min_vals) / ranges
 
     @staticmethod
-    def range_standardization(data):
+    def range_standardization(data: np.ndarray) -> np.ndarray:
         """极差标准化"""
         mean = np.mean(data, axis=0)
         min_vals = np.min(data, axis=0)
@@ -40,13 +40,13 @@ class DataNormalizer:
         return (data - mean) / ranges
 
     @staticmethod
-    def max_normalization(data):
+    def max_normalization(data: np.ndarray) -> np.ndarray:
         """最大值规格化"""
         max_vals = np.max(data, axis=0)
         max_vals[max_vals == 0] = 1  # 避免除零
         return data / max_vals
 
-    def normalize(self, data, method_key):
+    def normalize(self, data: np.ndarray, method_key: str) -> tuple[np.ndarray, str]:
         """执行规格化"""
         if method_key not in self.methods:
             raise ValueError(f"未知的规格化方法: {method_key}")
